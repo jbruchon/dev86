@@ -440,7 +440,7 @@ manifest_constant()
 /* Linux/unix */
 #ifdef __linux__
    save_name("__linux__", 'D');
-#ifdef __i386__
+#if defined __i386__ || defined __x86_64__
    save_name("__elksemu_works__", 'D');
 #endif
 #endif
