@@ -12,7 +12,7 @@ endif
 
 # Default
 ifeq ($(CFLAGS),)
-CFLAGS=-O
+CFLAGS=-O $(DEFS)
 endif
 
 # Turn on elkemu's strace like facility.
