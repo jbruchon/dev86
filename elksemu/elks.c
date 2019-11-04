@@ -1,7 +1,8 @@
 /*
  *	ELKSEMU	An emulator for Linux8086 binaries.
  *
- *	VM86 is used to process all the 8086 mode code.
+ *	The 8086 mode code runs in protected mode by way of 16-bit segment
+ *	descriptors which we set up in the LDT.
  *	We trap up to 386 mode for system call emulation and naughties. 
  */
 
@@ -114,14 +115,15 @@ static void elks_take_interrupt(int arg)
 	elks_cpu.regs.xax = elks_syscall();
 	dbprintf(("elks syscall returned %d\n",
 		  (int)(short)elks_cpu.regs.xax));
-	/* Finally return to vm86 state */
+	/* Finally resume the child process */
 }
 
 
 static int load_elks(int fd)
 {
-	/* Load the elks binary image and set it up in a suitable VM86 segment. Load CS and DS/SS
-	   according to image type. chmem is ignored we always use 64K segments */
+	/* Load the elks binary image and set it up in the text and data
+	   segments. Load CS and DS/SS according to image type. chmem is
+	   ignored we always use 64K segments */
 	struct elks_exec_hdr mh;
 	struct user_desc cs_desc, ds_desc;
 	if(read(fd, &mh,sizeof(mh))!=sizeof(mh))
@@ -219,7 +221,7 @@ void run_elks()
 	int status;
 	if (!child)
 	{
-		child = clone(child_idle, elks_data_base + 0x10000,
+		child = clone(child_idle, elks_data_base + elks_cpu.regs.xsp,
 			      CLONE_FILES | CLONE_FS | CLONE_IO | CLONE_VM,
 			      NULL);
 		if (child <= 0)

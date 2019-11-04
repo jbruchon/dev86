@@ -696,7 +696,7 @@ elks_closedir(int bx)
 static int elks_sbrk(int bx,int cx,int dx,int di,int si)
 {
 	unsigned short old_brk_at = brk_at;
-	dbprintf(("sbrk(%d)\n",bx));
+	dbprintf(("sbrk(%d,0x%04x)\n",bx,cx));
 	if (bx % 2)
 	{
 		++bx;
@@ -705,7 +705,7 @@ static int elks_sbrk(int bx,int cx,int dx,int di,int si)
 	if (bx > 0) {
 		if (brk_at + bx < brk_at)
 		{
-			errno= 1;	/* Really return -1 */
+			errno= ENOMEM;
 			return -1;
 		}
 	}
@@ -713,17 +713,18 @@ static int elks_sbrk(int bx,int cx,int dx,int di,int si)
 	{
 		if (brk_at <= -bx || brk_at + bx >= elks_cpu.regs.xsp)
 		{
-			errno= 1;
+			errno= ENOMEM;
 			return -1;
 		}
 	}
 	if (brk_at >= elks_cpu.regs.xsp ^ brk_at + bx >= elks_cpu.regs.xsp)
 	{
-		errno = 1;
+		errno = ENOMEM;
 		return -1;
 	}
 	brk_at += bx;
-	return old_brk_at;
+	ELKS_POKE(int16_t, cx, old_brk_at);
+	return 0;
 }
 
 /****************************************************************************/
