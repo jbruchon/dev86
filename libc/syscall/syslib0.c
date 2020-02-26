@@ -84,7 +84,6 @@ bad_exit:
   jmp	bad_exit	! Exit returned !!
 
 export _exit
-export __exit
 _exit:			! exit(rv) function
 #if __FIRST_ARG_IN_AX__
   mov	[saved_arg1],ax
@@ -103,8 +102,7 @@ no_clean:
   inc	sp
   inc	sp
 #endif
-__exit:			! _exit(rv)
-  br	___exit		! This is just an alias for __exit();
+  br	__exit		! exit(rv)
 
 #endasm
 
@@ -118,7 +116,7 @@ int fd;
 off_t posn;
 int where;
 {
-   if( __lseek(fd, &posn, where) < 0 ) return -1;
+   if( _lseek(fd, &posn, where) < 0 ) return -1;
    else return posn;
 }
 #endif
@@ -129,7 +127,7 @@ int where;
 int getpid()
 {
    int ppid;
-   return __getpid(&ppid);
+   return _getpid(&ppid);
 }
 #endif
 
@@ -139,7 +137,7 @@ int getpid()
 int getppid()
 {
    int ppid;
-   __getpid(&ppid);
+   _getpid(&ppid);
    return ppid;
 }
 #endif
@@ -150,7 +148,7 @@ int getppid()
 int getuid()
 {
    int euid;
-   return __getuid(&euid);
+   return _getuid(&euid);
 }
 #endif
 
@@ -160,7 +158,7 @@ int getuid()
 int geteuid()
 {
    int euid;
-   __getuid(&euid);
+   _getuid(&euid);
    return euid;
 }
 #endif
@@ -171,7 +169,7 @@ int geteuid()
 int getgid()
 {
    int egid;
-   return __getgid(&egid);
+   return _getgid(&egid);
 }
 #endif
 
@@ -181,7 +179,7 @@ int getgid()
 int getegid()
 {
    int egid;
-   __getgid(&egid);
+   _getgid(&egid);
    return egid;
 }
 #endif
@@ -250,7 +248,7 @@ clock_t times(buf)
 struct tms* buf;
 {
    long rv;
-   __times(buf, &rv);
+   _times(buf, &rv);
    return rv;
 }
 #endif
