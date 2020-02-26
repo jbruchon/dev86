@@ -25,7 +25,7 @@ typedef int (*__dir_compar_fn_t) __P ((
                 ));
 
 struct dirent {
-	long		d_ino;
+	ino_t		d_ino;
 	off_t		d_off;
 	unsigned short	d_reclen;
 	char		d_name[MAXNAMLEN+1];
